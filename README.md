@@ -1,3 +1,4 @@
+
 # video_analizer
 
 Bitrate Graph
@@ -25,7 +26,7 @@ Usage: video_analizer [-h] [-p [<ffprobe>]] [-s [<stream>]] [-W [<width>]]
 
 ## Output example
 
-[]!(output.svg)
+![](output.svg)
 
 ## License
 
