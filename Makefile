@@ -1,0 +1,5 @@
+HAS_ELIXIR=0
+NO_REGISTRY_UPDATE=0
+NO_XREF=1
+
+include bu.mk
