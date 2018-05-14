@@ -287,7 +287,6 @@ build_csv_output(BitrateData, _Verbose, Filename) ->
                 [[bucs:to_string(Time) | [bucs:to_string(maps:get(FrameType, Data)) || FrameType <- maps:keys(BitrateData)]]|Acc]
             end, [], FinalData),
   SortedCSVData = lists:sort(fun([T0|_], [T1|_]) -> T0 < T1 end, CSVData),
-
   {ok, IO} = video_analizer_io:open(Filename, [write]),
   file:write(IO, ?CSV_LINE(string:join(["\"Time\""|[bucs:to_string(<<"\"", F/binary, " Frames\"">>) || F <- maps:keys(BitrateData)]], ";"))),
   [file:write(IO, ?CSV_LINE(string:join(L, ";"))) || L <- SortedCSVData],
