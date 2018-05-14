@@ -6,117 +6,118 @@
         ]).
 
 write(Filename, Width, Height, Legends, MinX, MaxX, MinY, MaxY, Mean, Data) ->
-  svg:write(
-    Filename,
-    svg:add(
-      [
-       % Background
-       svg:rect({"100%", "100%"}, [{'fill', '#fff'}])
-       | Data
-      ] ++ [
-       % Title
-       svg:add(
-         svg:text({Width/2, 30}, "Stream Bitrate vs Time", [{'text-anchor', 'middle'}]),
-         svg:g([
-                {'font-family', 'Arial'},
-                {'font-size', 24},
-                {fill, '#000'},
-                {stroke, '#000'},
-                {'stroke-width', 1}
-               ])
-        ),
+  SVG = svg:add(
+          [
+           % Background
+           svg:rect({"100%", "100%"}, [{'fill', '#fff'}])
+           | Data
+          ] ++ [
+                % Title
+                svg:add(
+                  svg:text({Width/2, 30}, "Stream Bitrate vs Time", [{'text-anchor', 'middle'}]),
+                  svg:g([
+                         {'font-family', 'Arial'},
+                         {'font-size', 24},
+                         {fill, '#000'},
+                         {stroke, '#000'},
+                         {'stroke-width', 1}
+                        ])
+                 ),
 
-       % X Axis
-       svg:add(
-         svg:path([{120, Height - 120}, {Width - 60, Height - 120}]),
-         svg:g([
-                {stroke, '#000'},
-                {'stroke-width', 1}
-               ])
-        ),
-       svg:add(
-         svg:text({Width/2, Height - 25}, "Time (sec)", [{'text-anchor', 'middel'}]),
-         svg:g([
-                {'font-family', 'Arial'},
-                {'font-size', 24},
-                {fill, '#000'},
-                {stroke, '#000'},
-                {'stroke-width', 1}
-               ])
-        ),
-       svg:add(
-         scale_x(Width, Height, MinX, MaxX, MinY, MaxY),
-         svg:g([
-                {'font-family', 'Arial'},
-                {'font-size', 12},
-                {fill, '#000'},
-                {stroke, '#000'},
-                {'stroke-width', 1}
-               ])
-        ),
+                % X Axis
+                svg:add(
+                  svg:path([{120, Height - 120}, {Width - 60, Height - 120}]),
+                  svg:g([
+                         {stroke, '#000'},
+                         {'stroke-width', 1}
+                        ])
+                 ),
+                svg:add(
+                  svg:text({Width/2, Height - 25}, "Time (sec)", [{'text-anchor', 'middel'}]),
+                  svg:g([
+                         {'font-family', 'Arial'},
+                         {'font-size', 24},
+                         {fill, '#000'},
+                         {stroke, '#000'},
+                         {'stroke-width', 1}
+                        ])
+                 ),
+                svg:add(
+                  scale_x(Width, Height, MinX, MaxX, MinY, MaxY),
+                  svg:g([
+                         {'font-family', 'Arial'},
+                         {'font-size', 12},
+                         {fill, '#000'},
+                         {stroke, '#000'},
+                         {'stroke-width', 1}
+                        ])
+                 ),
 
-       % Y Axis
-       svg:add(
-         svg:path([{120, Height - 120}, {120, 120}]),
-         svg:g([
-                {stroke, '#000'},
-                {'stroke-width', 1}
-               ])
-        ),
-       svg:add(
-         svg:text({30, Height/2}, "Frame Bitrate (kbps)", [{'text-anchor', 'middle'}, {transform, io_lib:format("rotate(270 30,~p)", [Height/2])}]),
-         svg:g([
-                {'font-family', 'Arial'},
-                {'font-size', 24},
-                {fill, '#000'},
-                {stroke, '#000'},
-                {'stroke-width', 1}
-               ])
-        ),
-       svg:add(
-         scale_y(Width, Height, MinX, MaxX, MinY, MaxY),
-         svg:g([
-                {'font-family', 'Arial'},
-                {'font-size', 12},
-                {fill, '#000'},
-                {stroke, '#000'},
-                {'stroke-width', 1}
-               ])
-        ),
+                % Y Axis
+                svg:add(
+                  svg:path([{120, Height - 120}, {120, 120}]),
+                  svg:g([
+                         {stroke, '#000'},
+                         {'stroke-width', 1}
+                        ])
+                 ),
+                svg:add(
+                  svg:text({30, Height/2}, "Frame Bitrate (kbps)", [{'text-anchor', 'middle'}, {transform, io_lib:format("rotate(270 30,~p)", [Height/2])}]),
+                  svg:g([
+                         {'font-family', 'Arial'},
+                         {'font-size', 24},
+                         {fill, '#000'},
+                         {stroke, '#000'},
+                         {'stroke-width', 1}
+                        ])
+                 ),
+                svg:add(
+                  scale_y(Width, Height, MinX, MaxX, MinY, MaxY),
+                  svg:g([
+                         {'font-family', 'Arial'},
+                         {'font-size', 12},
+                         {fill, '#000'},
+                         {stroke, '#000'},
+                         {'stroke-width', 1}
+                        ])
+                 ),
 
-       % Legend
-       svg:add(
-         svg:rect({{Width - 200, 50}, {150, 20 + 30 * (length(Legends))}}),
-         svg:g([
-                {fill, '#fff'},
-                {stroke, '#000'},
-                {'stroke-width', 3}
-               ])
-        ),
-       svg:add(
-         legends_text(Legends, Width),
-         svg:g([
-                {'font-size', 24},
-                {'font-family', 'Arial'}
-               ])
-        ),
+                % Legend
+                svg:add(
+                  svg:rect({{Width - 200, 50}, {150, 20 + 30 * (length(Legends))}}),
+                  svg:g([
+                         {fill, '#fff'},
+                         {stroke, '#000'},
+                         {'stroke-width', 3}
+                        ])
+                 ),
+                svg:add(
+                  legends_text(Legends, Width),
+                  svg:g([
+                         {'font-size', 24},
+                         {'font-family', 'Arial'}
+                        ])
+                 ),
 
-       % Mean
-       svg:add(
-         [
-          svg:path([{120, pos_y(Mean, Height, MinY, MaxY)}, {Width - 60, pos_y(Mean, Height, MinY, MaxY)}], [{'stroke-width', 2}]),
-          svg:text({130, pos_y(Mean, Height, MinY, MaxY) - 10}, io_lib:format("Mean (~p)", [Mean]))
-         ],
-         svg:g([
-                {'font-size', 18},
-                {'font-family', 'Arial'},
-                {stroke, '#000'}
-               ])
-        )
-      ],
-      svg:init(Width, Height)
-     )
-   ).
+                % Mean
+                svg:add(
+                  [
+                   svg:path([{120, pos_y(Mean, Height, MinY, MaxY)}, {Width - 60, pos_y(Mean, Height, MinY, MaxY)}], [{'stroke-width', 2}]),
+                   svg:text({130, pos_y(Mean, Height, MinY, MaxY) - 10}, io_lib:format("Mean (~p)", [Mean]))
+                  ],
+                  svg:g([
+                         {'font-size', 18},
+                         {'font-family', 'Arial'},
+                         {stroke, '#000'}
+                        ])
+                 )
+               ],
+          svg:init(Width, Height)
+         ),
+  write_to_file(Filename, SVG).
+
+write_to_file("-", SVG) -> io:format("~ts~n", [iolist_to_binary(svg:export(SVG))]);
+write_to_file(Filename, SVG) -> svg:write(Filename, SVG).
 
 legends_text(Legends, Width) ->
   legends_text(Legends, Width, 85).

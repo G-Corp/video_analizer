@@ -28,16 +28,31 @@ analyze(Video, Options) ->
     {0, _, _, _} ->
       error("No frame data, failed to execute ffprobe");
     {FrameCount, MaxTime, MaxBitrate, BitrateData} ->
-      ?VERBOSE(Verbose, "Build graph datas...~n", []),
-      build_graph_data(
-        BitrateData,
-        FrameCount,
-        proplists:get_value(output, Options),
-        erlang:ceil(MaxTime), % MaxX
-        erlang:ceil(MaxBitrate), % MaxY
-        proplists:get_value(width, Options),
-        proplists:get_value(height, Options),
-        Verbose)
+      ?VERBOSE(Verbose, "Build datas...~n", []),
+      case proplists:get_value(format, Options) of
+        "svg" ->
+          build_svg_output(
+            BitrateData,
+            FrameCount,
+            proplists:get_value(output, Options),
+            erlang:ceil(MaxTime), % MaxX
+            erlang:ceil(MaxBitrate), % MaxY
+            proplists:get_value(width, Options),
+            proplists:get_value(height, Options),
+            Verbose);
+        "csv" ->
+          build_csv_output(
+            BitrateData,
+            Verbose,
+            proplists:get_value(output, Options));
+        "json" ->
+          build_json_output(
+            BitrateData,
+            Verbose,
+            proplists:get_value(output, Options));
+        _ ->
+          error("Output format not supported")
+      end
   end.
 
 get_all_frames(Video, Options) ->
@@ -55,14 +70,6 @@ get_all_frames(Video, Options) ->
   Data = os:cmd(Cmd),
   #{<<"frames">> := Frames} = jsx:decode(bucs:to_binary(Data), [return_maps]),
   Frames.
-  % case bucos:run(Cmd, [{timeout, infinity}, stdout_on_error]) of
-  %   {ok, Data} ->
-  %     io:format("Decode JSON...~n"),
-  %     #{<<"frames">> := Frames} = jsx:decode(bucs:to_binary(Data), [return_maps]),
-  %     Frames;
-  %   _ ->
-  %     error
-  % end.
 
 get_video_frame_rate(Video, Options) ->
   FFProbe = proplists:get_value(ffprobe, Options),
@@ -76,16 +83,6 @@ get_video_frame_rate(Video, Options) ->
   #{<<"streams">> := [#{<<"avg_frame_rate">> := FR}|_]} = jsx:decode(bucs:to_binary(Data), [return_maps]),
   [Divident, Divisor] = binary:split(FR, <<"/">>),
   bucs:to_integer(Divident) / bucs:to_integer(Divisor).
-  % case bucos:run(Cmd, [{timeout, infinity}, stdout_on_error]) of
-  %   {ok, Data} ->
-  %     io:format("Decode JSON...~n"),
-  %     #{<<"streams">> := [#{<<"avg_frame_rate">> := FR}|_]} = jsx:decode(bucs:to_binary(Data), [return_maps]),
-  %     [Divident, Divisor] = binary:split(FR, <<"/">>),
-  %     FrameRate = bucs:to_integer(Divident) / bucs:to_integer(Divisor),
-  %     FrameRate;
-  %   _ ->
-  %     error
-  % end.
 
 build_datas([], _FrameRate, FrameCount, _FrameTime, MaxTime, MaxBitrate, BitrateData) ->
   {FrameCount, MaxTime, MaxBitrate, BitrateData};
@@ -115,16 +112,11 @@ build_datas([#{<<"pkt_size">> := PktSize} = Frame|Frames],
     max(MaxBitrate, FrameBitrate),
     BitrateData#{PictType => [{NewFrameTime, FrameBitrate}|PictTypeData]}).
 
-build_graph_data(BitrateData, FrameCount, Filename, MaxX, MaxY, Width, Height, Verbose) ->
-  % Legends = [
-  %            {"I Frames", "#ff0000"},
-  %            {"P Frames", "#31b404"},
-  %            {"B Frames", "#0000ff"}
-  %           ],
+build_svg_output(BitrateData, FrameCount, Filename, MaxX, MaxY, Width, Height, Verbose) ->
   {GlobalMeanBitrate,
    _GlobalPeakBitrate,
    GraphData,
-   Legends} = build_graph_data(
+   Legends} = build_svg_output(
                 [{<<"A">>, "#ff0000"},
                  {<<"B">>, "#0000ff"},
                  {<<"P">>, "#31b404"},
@@ -144,11 +136,11 @@ build_graph_data(BitrateData, FrameCount, Filename, MaxX, MaxY, Width, Height, V
   ?VERBOSE(Verbose, "Build finalze image...~n", []),
   video_analizer_svg:write(Filename, Width, Height, Legends, 0, MaxX, 0, MaxY, bucs:to_float(GlobalMeanBitrate, 2), GraphData).
 
-build_graph_data([], Verbose, _BitrateData, _FrameCount, _MaxX, _MaxY, _Width, _Height, GlobalPeakBitrate, GlobalMeanBitrate, GraphData, Legends) ->
+build_svg_output([], Verbose, _BitrateData, _FrameCount, _MaxX, _MaxY, _Width, _Height, GlobalPeakBitrate, GlobalMeanBitrate, GraphData, Legends) ->
   ?VERBOSE(Verbose, "global peak bitrate = ~p~n", [GlobalPeakBitrate]),
   ?VERBOSE(Verbose, "global mean bitrate = ~p~n", [GlobalMeanBitrate]),
   {GlobalMeanBitrate, GlobalPeakBitrate, GraphData, Legends};
-build_graph_data([{FrameType, Color}|FrameTypes],
+build_svg_output([{FrameType, Color}|FrameTypes],
                  Verbose,
                  BitrateData,
                  FrameCount,
@@ -190,7 +182,7 @@ build_graph_data([{FrameType, Color}|FrameTypes],
                         Color}
                        |Legends]}
                  end,
-  build_graph_data(
+  build_svg_output(
     FrameTypes,
     Verbose,
     BitrateData,
@@ -233,7 +225,6 @@ build_frame_image([{FrameTime, FrameBitrate}|FrameList],
                   Width,
                   Height,
                   GraphData) ->
-  % io:format("  ~ps => ~pkbps~n", [FrameTime, FrameBitrate]),
   build_frame_image(
     FrameList,
     Verbose,
@@ -252,3 +243,37 @@ build_frame_image([{FrameTime, FrameBitrate}|FrameList],
     Height,
     [video_analizer_svg:bar(FrameTime, FrameBitrate, Width, Height, 0, MaxX, 0, MaxY, Color, [], false)|GraphData]
    ).
+
+build_output_data(BitrateData) ->
+  DefaultTimeData = lists:foldl(fun(V, Acc) ->
+                  Acc#{V => 0.0}
+              end, #{}, maps:keys(BitrateData)),
+  maps:fold(fun(FrameType, Values, Acc) ->
+                lists:foldl(fun({Time, Bitrate}, Acc0) ->
+                                STime = bucs:to_float(Time, 3),
+                                STimeData = maps:get(STime, Acc0, DefaultTimeData),
+                                Acc0#{STime => STimeData#{FrameType => bucs:to_float(Bitrate, 3)}}
+                            end, Acc, Values)
+            end, #{}, BitrateData).
+
+build_json_output(BitrateData, _Verbose, Filename) ->
+  Datas = maps:fold(fun(K, V, Acc) ->
+                [maps:put(<<"Time">>, K, V)|Acc]
+            end, [], build_output_data(BitrateData)),
+  Output = jsx:encode(Datas),
+  {ok, IO} = video_analizer_io:open(Filename, [write]),
+  file:write(IO, jsx:prettify(Output)),
+  video_analizer_io:close(IO).
+
+-define(CSV_LINE(Data), io_lib:format("~ts~n", [Data])).
+build_csv_output(BitrateData, _Verbose, Filename) ->
+  FinalData = build_output_data(BitrateData),
+  CSVData = maps:fold(fun(Time, Data, Acc) ->
+                [[bucs:to_string(Time) | [bucs:to_string(maps:get(FrameType, Data)) || FrameType <- maps:keys(BitrateData)]]|Acc]
+            end, [], FinalData),
+  SortedCSVData = lists:sort(fun([T0|_], [T1|_]) -> T0 < T1 end, CSVData),
+
+  {ok, IO} = video_analizer_io:open(Filename, [write]),
+  file:write(IO, ?CSV_LINE(string:join(["\"Time\""|[bucs:to_string(<<"\"", F/binary, " Frames\"">>) || F <- maps:keys(BitrateData)]], ";"))),
+  [file:write(IO, ?CSV_LINE(string:join(L, ";"))) || L <- SortedCSVData],
+  video_analizer_io:close(IO).
