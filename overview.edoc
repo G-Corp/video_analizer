@@ -1,29 +1,22 @@
+@author Gregoire Lejeune <gregoire.lejeune@gmail.com>
+@copyright 2017-2018 G-Corp
+@version 0.1.0
+@title Bitrate Graph
+@doc
 
+<h3>video_analizer</h3>
 
-# Bitrate Graph #
+This project was inspired by <a href="https://github.com/zeroepoch/plotbitrate">plotbitrate</a>.
 
-Copyright (c) 2017-2018 G-Corp
+<h4>Build and usage</h4>
 
-__Version:__ 0.1.0
-
-__Authors:__ Gregoire Lejeune ([`gregoire.lejeune@gmail.com`](mailto:gregoire.lejeune@gmail.com)).
-
-
-### video_analizer ###
-
-This project was inspired by [plotbitrate](https://github.com/zeroepoch/plotbitrate).
-
-
-#### Build and usage ####
-
-```
-
+<pre>
 $ make
 ...
 $ ./_build/default/bin/video_analizer --help
-Usage: video_analizer [-h] [-p [<ffprobe>]] [-s [<stream>]] [-W [<width>]]
-                      [-H [<height>]] [-A] [-V] [-o [<output>]]
-                      [-f [<format>]]
+Usage: video_analizer [-h] [-p [&lt;ffprobe&gt;]] [-s [&lt;stream&gt;]] [-W [&lt;width&gt;]]
+                      [-H [&lt;height&gt;]] [-A] [-V] [-o [&lt;output&gt;]]
+                      [-f [&lt;format&gt;]]
 
   -h, --help            Display this help
   -p, --ffprobe         FFProbe path [default: ffprobe]
@@ -33,37 +26,37 @@ Usage: video_analizer [-h] [-p [<ffprobe>]] [-s [<stream>]] [-W [<width>]]
   -A, --all_extensions  Force ffprobe to accept all extensions
   -V, --verbose         Verbose mode
   -o, --output          Output file name ("-" for STDOUT) [default:
-                        output.<format>]
+                        output.&lt;format&gt;]
   -f, --format          Output format (svg, csv, json) [default: svg]
+</pre>
 
-```
-
-
-#### Output example ####
+<h4>Output example</h4>
 
 ![](output.svg.png)
 
+<h4>Licence</h4>
 
-#### Licence ####
-
+<p>
 video_analizer is available for use under the following license, commonly known as the 3-clause (or "modified") BSD license:
+</p>
 
+<p>
 Copyright (c) 2017-2018 G-Corp<br />
+</p>
 
+<p>
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+</p>
 
-* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-* The name of the author may not be used to endorse or promote products derived from this software without specific prior written permission.
+<p>
+<ul>
+  <li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
+  <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
+  <li>The name of the author may not be used to endorse or promote products derived from this software without specific prior written permission.</li>
+</ul>
+</p>
 
-
-
+<p>
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-## Modules ##
-
-
-<table width="100%" border="0" summary="list of modules">
-<tr><td><a href="https://github.com/G-Corp/video_analizer/blob/master/doc/video_analizer_api.md" class="module">video_analizer_api</a></td></tr></table>
+</p>
 

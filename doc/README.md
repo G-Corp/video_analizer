@@ -65,5 +65,5 @@ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR IMPLIED WAR
 
 
 <table width="100%" border="0" summary="list of modules">
-<tr><td><a href="https://github.com/G-Corp/video_analizer/blob/master/doc/video_analizer_api.md" class="module">video_analizer_api</a></td></tr></table>
+<tr><td><a href="video_analizer_api.md" class="module">video_analizer_api</a></td></tr></table>
 

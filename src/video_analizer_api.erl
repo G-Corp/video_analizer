@@ -12,12 +12,28 @@
                                           true -> ok
                                         end).
 
+-type stream() :: video | audio.
+-type format() :: svg | csv | json.
+-type options() :: [option()].
+-type option() :: {ffprobe, string()}
+                  | {stream, stream()}
+                  | {width, integer()}
+                  | {height, integer()}
+                  | allowed_extensions
+                  | verbose
+                  | {output, string()}
+                  | {format, format()}.
+
+% @doc
+% Analyze the given <tt>Video</tt>
+% @end
+-spec analyze(Video::string(), Options::options()) -> ok.
 analyze(Video, Options) ->
   Verbose = proplists:get_value(verbose, Options),
   ?VERBOSE(Verbose, "Get all frames...~n", []),
   Frames = get_all_frames(Video, Options),
   ?VERBOSE(Verbose, "Get frame rate...~n", []),
-  FrameRate = case proplists:get_value(stream, Options) of
+  FrameRate = case bucs:to_string(proplists:get_value(stream, Options)) of
                 "video" -> get_video_frame_rate(Video, Options);
                 "audio" ->
                   [#{<<"pkt_duration_time">> := PktDurationTime}|_] = Frames,
@@ -29,7 +45,7 @@ analyze(Video, Options) ->
       error("No frame data, failed to execute ffprobe");
     {FrameCount, MaxTime, MaxBitrate, BitrateData} ->
       ?VERBOSE(Verbose, "Build datas...~n", []),
-      case proplists:get_value(format, Options) of
+      case bucs:to_string(proplists:get_value(format, Options)) of
         "svg" ->
           build_svg_output(
             BitrateData,
@@ -57,7 +73,7 @@ analyze(Video, Options) ->
 
 get_all_frames(Video, Options) ->
   FFProbe = proplists:get_value(ffprobe, Options),
-  Stream = case proplists:get_value(stream, Options) of
+  Stream = case bucs:to_string(proplists:get_value(stream, Options)) of
              "audio" -> "a";
              _ -> "V"
            end,
@@ -102,7 +118,6 @@ build_datas([#{<<"pkt_size">> := PktSize} = Frame|Frames],
                  end,
   FrameBitrate = (bucs:to_float(PktSize) * 8 / 1000) * FrameRate,
   PictTypeData = maps:get(PictType, BitrateData, []),
-  % io:format("~ts: ~p s - ~p kbps~n", [PictType, NewFrameTime, FrameBitrate]),
   build_datas(
     Frames,
     FrameRate,

@@ -1,3 +1,4 @@
+% @hidden
 -module(video_analizer_io).
 
 -export([
